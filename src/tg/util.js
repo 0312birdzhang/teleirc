@@ -8,6 +8,7 @@ var mkdirp = require('mkdirp');
 var crypto = require('crypto');
 var logger = require('winston');
 var imgur = require('imgur');
+var pvimcn = require("./pvimcn.js");
 var os = require('os');
 var child_process = require('child_process');
 
@@ -166,6 +167,18 @@ exports.uploadToImgur = function(fileId, config, tg, callback) {
         });
 };
 
+exports.uploadToVimcn = function(fileId, config, tg, callback) {
+    var filesPath = os.tmpdir();
+    var randomString = exports.randomValueBase64(config.mediaRandomLength);
+    mkdirp(path.join(filesPath, randomString));
+    tg.getFileLink(fileid).then(function (ret){
+        var url = ret;
+        pvimcn.imgvim(url, function(err,ret){
+            callback(ret.trim());
+        });
+    });
+};
+
 exports.initHttpServer = function() {
     var filesPath = path.join(chatIdsPath, 'files');
     mkdirp(filesPath);
@@ -271,7 +284,7 @@ exports.parseMsg = function(msg, myUser, tg, callback) {
                 msg.voice || msg.contact || msg.location) && !config.showMedia) {
         // except if the media object is an photo and imgur uploading is
         // enabled
-        if (!(msg.photo && config.uploadToImgur)) {
+        if (!(msg.photo && config.uploadToVimcn)) {
             return callback();
         }
     }
@@ -389,8 +402,8 @@ exports.parseMsg = function(msg, myUser, tg, callback) {
     } else if (msg.photo) {
         // pick the highest quality photo
         var photo = msg.photo[msg.photo.length - 1];
-        if (config.uploadToImgur) {
-            exports.uploadToImgur(photo.file_id, config, tg, function(url) {
+        if (config.uploadToVimcn) {
+            exports.uploadToVimcn(photo.file_id, config, tg, function(url) {
                 callback({
                     channel: channel,
                     text: prefix + '(Photo, ' + photo.width + 'x' + photo.height + ') ' +
@@ -409,8 +422,8 @@ exports.parseMsg = function(msg, myUser, tg, callback) {
     } else if (msg.new_chat_photo) {
         // pick the highest quality photo
         var chatPhoto = msg.new_chat_photo[msg.new_chat_photo.length - 1];
-        if (config.uploadToImgur) {
-            exports.uploadToImgur(chatPhoto.file_id, config, tg, function(url) {
+        if (config.uploadToVimcn) {
+            exports.uploadToVimcn(chatPhoto.file_id, config, tg, function(url) {
                 callback({
                     channel: channel,
                     text: prefix + '(New chat photo, ' +
