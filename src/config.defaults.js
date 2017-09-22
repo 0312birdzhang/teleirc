@@ -11,27 +11,13 @@ module.exports = config;
 config.logLevel = 'info';
 
 // paste the bot API token you got from BotFather here:
-config.tgToken = 'YOUR-BOT-TOKEN';
+config.tgToken = '401645873:AAGqsDGvVjw0XNTJbyBrQQorVcUwqAkdvqc';
 
-// only relay IRC events present in array
-// possible values include:
-// message, notice, action, topic, join, part, kick, quit
-config.relayIRCEvents = ['message', 'notice', 'action', 'topic', 'kick'];
-
-// The maximum length of quoted message when a message is replied to in Telegram
-// Set to 0 to disable showing replies
-config.replySnippetLength = 80;
+config.relayIRCEvents = true;
 
 // enable HTTP server which hosts sent media files, links to files are
 // forwarded to IRC
-config.showMedia = false;
-
-// Convert these media files to other types using the "convert" command.
-// To be able to convert from WebP, install imagemagick and the dwebp tool
-// (e.g. sudo apt install imagemagick webp)
-config.mediaConversions = {
-    //'webp': 'png'
-};
+config.showMedia = true;
 
 // Add some randomness to url when relaying media
 // Use 0 to disable
@@ -42,23 +28,15 @@ config.mediaRandomLength = 8;
 config.maxMsgAge = 60;
 
 // HTTP server port
-config.httpPort = 9090;
+config.httpPort = 9999;
 
 // HTTP server location, URLs are generated from this
-config.httpLocation = 'http://mydomain.com' + ':' + config.httpPort;
-
-// Upload sent photos to Imgur, links to Imgur uploads are
-// forwared to IRC
-config.uploadToImgur = false;
-
-// Upload sent photos to img.vim-cn.com
-config.uploadToVimcn = true;
-
-// Imgur client id required for uploading photos to Imgur
-config.imgurClientId = 'YOUR-CLIENT-ID';
+config.httpLocation = 'http://bot.sailfishos.club';
 
 // Whether to allow sending messages to IRC without nick prefix
 config.allowCommands = false;
+
+config.uploadToVimcn = true;
 
 //////////////////
 //  IRC config  //
@@ -97,8 +75,8 @@ config.usernameFallbackFormat = '%firstName% %lastName%';
 // Tip: you can set this to \n if you want them as separate messages on IRC
 config.replaceNewlines = ' … ';
 
-config.ircNick = 'tgBot';
-config.ircServer = 'irc.cs.hut.fi';
+config.ircNick = 'TellaBot';
+config.ircServer = 'irc.freenode.net';
 
 // array of commands to send to IRC server as soon as we're connected,
 // example: config.ircPerformCmds = [
@@ -110,34 +88,10 @@ config.channels = [
     // example of a barebones IRC channel:
     // '#channel1' will be bridged to a Telegram group called 'Tg_Group_1'
     {
-        ircChan: '#channel1',
-        tgGroup: 'Tg_Group_1'
-    },
-
-    // example of a password-protected IRC channel:
-    {
-        ircChan: '#channel2',
-        chanPwd: 'passwd',
-        tgGroup: 'Tg_Group_2'
-    },
-
-    // example of a readOnly IRC channel and Telegram Group:
-    {
-        ircChan: '#channel3',
-        ircChanReadOnly: true,          // if true, irc can not send to telegram
-        ircChanOverrideReadOnly: false, // if true, override readonly by highlighting the bot
-        tgGroup: 'Tg_Group_3',
-        tgGroupReadOnly: true,          // if true, telegram can not send to irc
-        tgGroupOverrideReadOnly: true,  // if true, override readonly by highlighting the bot
-    },
-
-    // example of an IRC channel with an alias:
-    // channel name will be displayed as '!channel3' instead of '!XXXXXchannel3'
-    {
-        ircChan: '!XXXXXchannel3',
-        chanAlias: '!channel3',
-        tgGroup: 'Tg_Group_3'
+        ircChan: '#jolla-cn',
+        tgGroup: 'Jolla/Sailfish OS 中文交流群'
     }
+
 ];
 
 // see https://node-irc.readthedocs.org/en/latest/API.html#client for
@@ -163,6 +117,10 @@ config.ircOptions = {
     encoding: ''
 };
 
+// if you wish to relay every irc message to telegram, set this to true.
+// if false, then only lines matching config.hlRegexp will be relayed
+config.ircRelayAll = true;
+
 // the default hilight regexp will match lines containing the bot nick, or
 // lines starting with '! '
 var regex = '^ *(?:' + config.ircNick + '[:,]?|!) +(.*\\S.*)$';
@@ -172,6 +130,3 @@ config.hlRegexp = new RegExp(regex, 'i');
 // with the default regexp this would hide the bot nickname in messages when
 // highlighted
 config.hlOnlyShowMatch = false;
-
-// put action messages (posted with /me in IRC) between '*'
-config.emphasizeAction = true;

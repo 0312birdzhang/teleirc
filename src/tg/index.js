@@ -46,6 +46,7 @@ var init = function(msgCallback) {
             // if no chatId has been read for the chat yet, try reading it from disk
             if (!message.channel.tgChatId) {
                 message.channel.tgChatId = tgUtil.readChatId(message.channel);
+                // message.channel.tgChatId = "-1001119081721";
             }
 
             // if still no chatId, return with error message

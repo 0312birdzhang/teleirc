@@ -21,7 +21,7 @@ var chatIdsPath = path.dirname(argv.c || path.join(osHomedir(), '.teleirc', 'con
 
 exports.readChatId = function(channel) {
     var chatId;
-    var chatIdPath = path.join(chatIdsPath, channel.tgGroup + '.chatid');
+    var chatIdPath = path.join(chatIdsPath, channel.tgId + '.chatid');
 
     try {
         chatId = JSON.parse(fs.readFileSync(chatIdPath));
@@ -43,7 +43,7 @@ exports.readChatId = function(channel) {
 
 exports.writeChatId = function(channel) {
     var chatId = JSON.stringify(channel.tgChatId);
-    var chatIdPath = path.join(chatIdsPath, channel.tgGroup + '.chatid');
+    var chatIdPath = path.join(chatIdsPath, channel.tgId + '.chatid');
 
     try {
         fs.writeFileSync(chatIdPath, chatId);
@@ -154,7 +154,7 @@ exports.serveFile = function(fileId, config, tg, callback) {
     });
 };
 
-exports.uploadToImgur = function(fileId, config, tg, callback) {
+exports.uploaduploadToImgur = function(fileId, config, tg, callback) {
     var filesPath = os.tmpdir();
     var randomString = exports.randomValueBase64(config.mediaRandomLength);
     mkdirp(path.join(filesPath, randomString));
@@ -168,11 +168,10 @@ exports.uploadToImgur = function(fileId, config, tg, callback) {
 };
 
 exports.uploadToVimcn = function(fileId, config, tg, callback) {
-    var filesPath = os.tmpdir();
-    var randomString = exports.randomValueBase64(config.mediaRandomLength);
-    mkdirp(path.join(filesPath, randomString));
+    logger.info("executed!!!!");
     tg.getFileLink(fileid).then(function (ret){
         var url = ret;
+        logger.info(url);
         pvimcn.imgvim(url, function(err,ret){
             callback(ret.trim());
         });
@@ -386,14 +385,14 @@ exports.parseMsg = function(msg, myUser, tg, callback) {
             text: prefix + 'Fwd from ' + fwdName + ': ' + msg.text
         });
     } else if (msg.audio) {
-        exports.serveFile(msg.audio.file_id, config, tg, function(url) {
+        exports.uploadToVimcn(msg.audio.file_id, config, tg, function(url) {
             callback({
                 channel: channel,
                 text: prefix + '(Audio, ' + msg.audio.duration + 's)' + url
             });
         });
     } else if (msg.document) {
-        exports.serveFile(msg.document.file_id, config, tg, function(url) {
+        exports.uploadToVimcn(msg.document.file_id, config, tg, function(url) {
             callback({
                 channel: channel,
                 text: prefix + '(Document) ' + url
@@ -422,40 +421,43 @@ exports.parseMsg = function(msg, myUser, tg, callback) {
     } else if (msg.new_chat_photo) {
         // pick the highest quality photo
         var chatPhoto = msg.new_chat_photo[msg.new_chat_photo.length - 1];
-        if (config.uploadToVimcn) {
-            exports.uploadToVimcn(chatPhoto.file_id, config, tg, function(url) {
-                callback({
-                    channel: channel,
-                    text: prefix + '(New chat photo, ' +
-                    chatPhoto.width + 'x' + chatPhoto.height + ') ' + url
-                });});
-        } else {
-            exports.serveFile(chatPhoto.file_id, config, tg, function(url) {
-                callback({
-                    channel: channel,
-                    text: prefix + '(New chat photo, ' +
-                    chatPhoto.width + 'x' + chatPhoto.height + ') ' + url
-                });
-            });
-        }
+        exports.uploadToVimcn(chatPhoto.file_id, config, tg, function(url) {
+            callback({
+                channel: channel,
+                text: prefix + '(New chat photo, ' +
+                chatPhoto.width + 'x' + chatPhoto.height + ') ' + url
+            });});
+        
     } else if (msg.sticker) {
-        exports.serveFile(msg.sticker.file_id, config, tg, function(url) {
+        // exports.serveFile(msg.sticker.file_id, config, tg, function(url) {
+        //     callback({
+        //         channel: channel,
+        //         text: prefix + '(Sticker, ' +
+        //                 msg.sticker.width + 'x' + msg.sticker.height + ') ' + url
+        //     });
+        // });
+        exports.uploadToVimcn(msg.sticker.file_id, config, tg, function(url) {
             callback({
                 channel: channel,
                 text: prefix + '(Sticker, ' +
-                        msg.sticker.width + 'x' + msg.sticker.height + ') ' + url
-            });
-        });
+                chatPhoto.width + 'x' + chatPhoto.height + ') ' + url
+        });});
     } else if (msg.video) {
-        exports.serveFile(msg.video.file_id, config, tg, function(url) {
+        // exports.serveFile(msg.video.file_id, config, tg, function(url) {
+        //     callback({
+        //         channel: channel,
+        //         text: prefix + '(Video, ' + msg.video.duration + 's)' +
+        //             url + (msg.caption ? ' ' + msg.caption : '')
+        //     });
+        // });
+        exports.uploadToVimcn(msg.video.file_id, config, tg, function(url) {
             callback({
                 channel: channel,
                 text: prefix + '(Video, ' + msg.video.duration + 's)' +
-                    url + (msg.caption ? ' ' + msg.caption : '')
-            });
-        });
+                url + (msg.caption ? ' ' + msg.caption : '')
+            });});
     } else if (msg.voice) {
-        exports.serveFile(msg.voice.file_id, config, tg, function(url) {
+        exports.uploadToVimcn(msg.voice.file_id, config, tg, function(url) {
             callback({
                 channel: channel,
                 text: prefix + '(Voice, ' + msg.voice.duration + 's) ' + url
