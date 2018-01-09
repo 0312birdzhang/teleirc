@@ -51,6 +51,8 @@ config.httpLocation = 'http://mydomain.com' + ':' + config.httpPort;
 // forwared to IRC
 config.uploadToImgur = false;
 
+config.uploadToVimCN = false;
+
 // Imgur client id required for uploading photos to Imgur
 config.imgurClientId = 'YOUR-CLIENT-ID';
 
